@@ -1,7 +1,7 @@
 atlast.c
 No errors.
 
-For console I/O tests, use "atlast -iregress" and enter TESTCONS
+For console I/O tests, use "./atlast -iregress" and enter TESTCONS
 -> Console I/O tests:
 The following two lines should be identical...
 :: 1234 :: -1234.5
@@ -21,7 +21,7 @@ Trace: TRACE
   Memory Area     usage     used    allocated   in use 
    Stack             0        16       100         0
    Return stack      1        15       100         1
-   Heap           6008      6008      6100        98
+   Heap           5324      5324      6100        87
 
 
 Enter an operating system command to be used
@@ -69,7 +69,7 @@ TESTARRAY
 TAV
 K
 ARRAY1
-ARRAY4
+ARRAY8
 TESTVAR
 HERE3
 HERE4
@@ -146,7 +146,6 @@ R@
 2OVER
 2ROT
 2VARIABLE
-2CONSTANT
 2!
 2@
 VARIABLE
@@ -317,4 +316,5 @@ XIF
 
 Words not executed in this test:
 
+2CONSTANT
 -> 

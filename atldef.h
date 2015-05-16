@@ -40,7 +40,7 @@ typedef struct dw {
 
 /*  Data types	*/
 
-typedef long stackitem;
+typedef atl_int stackitem;
 typedef dictword **rstackitem;
 
 /* Stack items occupied by a dictionary word definition */
@@ -160,37 +160,12 @@ extern int atl_exec();
 extern char *atl_fgetsp();
 #endif
 
-/*  If explicit alignment is not requested, enable it in any case for
-    known CPU types that require alignment.  */
-
-#ifndef ALIGNMENT
-#ifdef sparc
-#define ALIGNMENT
-#endif
-#endif
-#ifdef __TURBOC__
-#define  Keyhit()   (kbhit() ? getch() : 0)
-/* DOS needs poll to detect break */
-#define  Keybreak() { static int n=0; if ((n = (n+1) & 127) == 0) V kbhit(); }
-#ifdef __MSDOS__
-#define MSDOS
-#endif
-#endif
 #ifdef MSDOS
 #define FBmode			      /* DOS requires binary file flag */
 #endif
 #ifdef Macintosh
 #define FBmode			      /* Macintosh requires binary file flag */
 #endif
-#ifdef OS2			      /* OS/2 requires binary file flag */
-#define FBmode
-#endif
-
-#ifdef HIGHC
-#define unlink(x) remove(x)	      /* High C library is brain-dead */
-pragma On(PCC_msgs);		      /* High C compiler is brain-dead */
-#endif
-
 
 /*  STATIC is defined as "static" on platforms which require this
     specification on declarations for forward-referenced functions.  */
@@ -272,17 +247,17 @@ pragma On(PCC_msgs);		      /* High C compiler is brain-dead */
 #define Realpop2 stk -= (2 * Realsize) /* Pop two reals from stack */
 
 #ifdef ALIGNMENT
-#define REAL0 *((atl_real *) memcpy((char *) &rbuf0, (char *) &S1, sizeof(atl_real)))
-#define REAL1 *((atl_real *) memcpy((char *) &rbuf1, (char *) &S3, sizeof(atl_real)))
-#define REAL2 *((atl_real *) memcpy((char *) &rbuf2, (char *) &S5, sizeof(atl_real)))
-#define SREAL0(x) rbuf2=(x); (void)memcpy((char *) &S1, (char *) &rbuf2, sizeof(atl_real))
-#define SREAL1(x) rbuf2=(x); (void)memcpy((char *) &S3, (char *) &rbuf2, sizeof(atl_real))
+#define REAL0 *((atl_real *) memcpy((char *) &rbuf0, (char *) &S0, sizeof(atl_real)))
+#define REAL1 *((atl_real *) memcpy((char *) &rbuf1, (char *) &S1, sizeof(atl_real)))
+#define REAL2 *((atl_real *) memcpy((char *) &rbuf2, (char *) &S2, sizeof(atl_real)))
+#define SREAL0(x) rbuf2=(x); (void)memcpy((char *) &S0, (char *) &rbuf2, sizeof(atl_real))
+#define SREAL1(x) rbuf2=(x); (void)memcpy((char *) &S1, (char *) &rbuf2, sizeof(atl_real))
 #else
-#define REAL0	*((atl_real *) &S1)   /* First real on stack */
-#define REAL1	*((atl_real *) &S3)   /* Second real on stack */
-#define REAL2	*((atl_real *) &S5)   /* Third real on stack */
-#define SREAL0(x) *((atl_real *) &S1) = (x)
-#define SREAL1(x) *((atl_real *) &S3) = (x)
+#define REAL0	*((atl_real *) &S0)   /* First real on stack */
+#define REAL1	*((atl_real *) &S1)   /* Second real on stack */
+#define REAL2	*((atl_real *) &S2)   /* Third real on stack */
+#define SREAL0(x) *((atl_real *) &S0) = (x)
+#define SREAL1(x) *((atl_real *) &S1) = (x)
 #endif
 
 /*  File I/O definitions (used only if FILEIO is configured).  */

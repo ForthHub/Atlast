@@ -1,16 +1,17 @@
 
 #	Unix makefile for ATLAST
 
-VERSION = 1.2
+VERSION = 2.0
 
 COPTIONS = -g -Wall
+#COPTIONS = -O3 -Wall
 CC = gcc
 
 LIBRARIES = -lm
 
 INCLUDE =
 
-ATLCONFIG = -DMEMSTAT -DALIGNMENT -DEXPORT -DREADONLYSTRINGS
+ATLCONFIG = -DMEMSTAT -DEXPORT -DREADONLYSTRINGS
 
 CFLAGS = $(COPTIONS) $(INCLUDE) $(ATLCONFIG)
 
@@ -27,43 +28,42 @@ atlast.o:   atlast.c atldef.h
 atldef.h:   atlast.h
 atlmain.o:  atlmain.c atlast.h
 
-primdeftest:
+primdeftest: primdeftest.c atldef.h
 	$(CC) $(CFLAGS) primdeftest.c atlast.c -o primdeftest $(LIBRARIES)
 
 #	Run the Atlast regression test
 
-regression:
+regress:
 	echo testcons >/tmp/regin.tmp
 	echo Test 1234 >>/tmp/regin.tmp
 	echo ls atlast.c >>/tmp/regin.tmp
 	echo  >>/tmp/regin.tmp
 	echo  >>/tmp/regin.tmp
-	./atlast -iregress </tmp/regin.tmp >/tmp/regout.tmp
-	diff regout.txt /tmp/regout.tmp
+	./atlast -iregression/regress.atl </tmp/regin.tmp >/tmp/regout.tmp
+	diff regression/regout.txt /tmp/regout.tmp
 
 clean:
 	rm -f $(APPS)
 	rm -f *.bak *.o *.dvi *.aux *.log
 	rm -f core core.* cscope.out *.tar.gz
 	rm -rf dist
-	( cd tex ; make clean )
+	( cd benchmark ; make clean )
 	
-dist:
+dist:	clean
 	rm -rf dist
 	mkdir dist
 	mkdir dist/atlast-$(VERSION)
-	cp -p atlast.c atlast.h tex/atlast.pdf atldef.h \
-		atlast.html \
+	mkdir dist/atlast-$(VERSION)/benchmark
+	mkdir dist/atlast-$(VERSION)/examples
+	mkdir dist/atlast-$(VERSION)/regression
+	cp -p benchmark/* dist/atlast-$(VERSION)/benchmark
+	cp -p examples/* dist/atlast-$(VERSION)/examples
+	cp -p regression/* dist/atlast-$(VERSION)/regression
+	cp -p atlast.c atlast.h atldef.h \
+		atlast2.html \
 		atlmain.c COPYING log.txt Makefile MANIFEST \
 		primdeftest.c \
-		regout.txt regress.atl dist/atlast-$(VERSION)
-	mkdir dist/atlast-$(VERSION)/tex
-	cp -p tex/*.tex tex/*.sty tex/Makefile dist/atlast-$(VERSION)/tex
+	      dist/atlast-$(VERSION)
 	find dist -type f -exec chmod 644 {} \;
 	( cd dist ; tar cfvz ../atlast-$(VERSION).tar.gz atlast-$(VERSION) )
 	rm -rf dist
-
-lint:	lintatlast
-
-lintatlast:
-	lint atlast.c atlmain.c $(LIBRARIES) $(ATLCONFIG)

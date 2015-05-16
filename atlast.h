@@ -17,7 +17,9 @@
 
 */
 
-typedef long atl_int;		      /* Stack integer type */
+#include <stdint.h>
+
+typedef int64_t atl_int;    	      /* Stack integer type */
 typedef double atl_real;	      /* Real number type */
 
 /*  External symbols accessible by the calling program.  */

@@ -23,8 +23,6 @@
 
 /*  Globals imported  */
 
-#ifndef HIGHC
-
 /*  CTRLC  --  Catch a user console break signal.  If your C library
 	       does not provide this Unix-compatibile facility
 	       (registered with the call on signal() in main()),
@@ -37,7 +35,6 @@ static void ctrlc(sig)
     if (sig == SIGINT)
 	atl_break();
 }
-#endif /* HIGHC */
 
 /*  MAIN  --  Main program.  */
 
@@ -52,7 +49,7 @@ int main(argc, argv)
     int in = 0;
 #define PR(x) (void) fprintf(stderr, x)
 
-    PR("ATLAST 1.2 (2007-10-07) This program is in the public domain.\n");
+    PR("ATLAST 2.0 (2014-07-04) [64-bit] This program is in the public domain.\n");
     ifp = stdin;
     for (i = 1; i < argc; i++) {
 	char *cp, opt;
@@ -153,9 +150,7 @@ int main(argc, argv)
     /* Now that all the preliminaries are out of the way, fall into
        the main ATLAST execution loop. */
 
-#ifndef HIGHC
     V signal(SIGINT, ctrlc);
-#endif /* HIGHC */
     while (TRUE) {
 	char t[132];
 

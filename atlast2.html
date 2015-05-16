@@ -210,6 +210,10 @@ tt {
 <h2 class="subtitle">Autodesk
 Threaded Language Application System Toolkit</h2>
 
+<h3 class="author">
+64-bit Edition
+</h3>
+
 <p class="abstract">
 Open, programmable products are superior to and
 displace even the best designed closed applications.  A threaded
@@ -400,8 +404,8 @@ one or two percent) of those required by Lisp, and frequently
 substantially less that compiled languages such as C.  It's kind of
 startling to discover that an entire interpretive and compiled
 language, including floating point, all the math functions of C, file
-I/O, strings, etc., can be built, in large model, into a DOS
-executable of 50964 bytes.  It can.</p>
+I/O, strings, etc., could be built, in the original 32-bit version,
+into a MS-DOS executable of 50964 bytes.</p>
 
 <p>
 <b>It is fast.</b>  Because it is a threaded
@@ -509,17 +513,13 @@ programming tasks.  The major differences between FORTH-83 and
 <span class="a">Atlast</span> are as follows.</p>
 
 <p>
-<b>Integers are 32 bits.</b>  To bring forth another language burdened
-with 16 bit integers in the year 1990 is, to my mind, unthinkable.  We
+<b>Integers are 64 bits.</b>  To bring forth another language burdened
+with 16 or 32 bit integers today is, to my mind, unthinkable.  We
 are rapidly entering an era where the vast majority of C language
-environments agree that the <tt>int</tt> type is 32 bits, and
+environments agree that the <tt>int</tt> type is 64 bits, and
 applications may be expected to rapidly conform to this standard. 
-Consequently, in <span class="a">Atlast</span>, all integers are 32
-bits and no <tt>short</tt> data type is provided.  Note that this does
-not imply incompatibility with C environments with 16 bit
-<tt>int</tt>s&mdash;<span class="a">Atlast</span> works perfectly with
-Turbo C on MS-DOS and Microsoft C on OS/2, for example, because all
-integers are explicitly declared as <tt>long</tt>.</p>
+Consequently, in <span class="a">Atlast</span>, all integers are 64
+bits and no <tt>short</tt> data type is provided.
 
 <p>
 <b>Identifiers are arbitrary length.</b>  In <span
@@ -544,8 +544,8 @@ set of mathematical functions are provided as primitives (which can be
 turned off at compile time, if not needed).  Compatibly with C, the
 default floating point type is 64 bit C <tt>double</tt> precision
 numbers.  The only assumption made by <span class="a">Atlast</span>
-about floating point format is that a floating point number is twice
-the size of an integer.  The rational number facilities of FORTH are
+about floating point format is that a floating point number is
+the same size as an integer.  The rational number facilities of FORTH are
 not provided in <span class="a">Atlast</span>.</p>
 
 <p>
@@ -653,9 +653,8 @@ small programs, and using it as a desk calculator, it's handy to have
 an interactive stand-alone version.  The <span class="a">Atlast</span>
 source distribution includes a main program, <tt>atlmain.c</tt>, that
 can be linked with <span class="a">Atlast</span> to provide such a
-utility.  The executable, called <tt>atlast</tt> on Unix and
-<tt>atlast.exe</tt> on MS-DOS, is built with all error checking
-enabled to aid in program development.</p>
+utility.  The executable, called <tt>atlast</tt>, is built with all
+error checking enabled to aid in program development.</p>
 
 <p>
 To experiment with <span class="a">Atlast</span>, execute the
@@ -695,7 +694,7 @@ and prints the error residual.  Here's how we might do that:</p>
 
 <pre class="c">
 % atlast
--> 1.0 atan 4.0 f* 2constant pi
+-> 1.0 atan 4.0 f* constant pi
 -> : pierr
 :>   pi f- fabs f. cr
 :> ;
@@ -730,24 +729,24 @@ the following:</p>
 
 : leibniz      ( n -- fpi )
     1.0 1.0
-    4 pick 1 do
-        2.0 f+  \ denom += 2
-        2dup
+    2 pick 1 do
+        2.0 f+      	    	\ denom += 2
+        dup
         i 1 and if
             fnegate
         then
-        1.0 2swap f/
-        2rot f+
-        2swap
+        1.0 swap f/
+        rot f+
+        swap
     loop
+    rot
     2drop
-    rot drop
     4.0 f*
 ;
 
 \   Reference value of Pi
 
-1.0 atan 4.0 f* 2constant pi
+1.0 atan 4.0 f* constant pi
 
 \ Calculate and print error
 
@@ -772,7 +771,7 @@ If this file is saved as <tt>leibniz.atl</tt>, we can load the program
 into Interactive <span class="a">Atlast</span> with the command:</p>
 
 <pre class="c">
-atlast -ileibniz
+atlast -ileibniz.atl
 </pre>
 
 <p>
@@ -787,7 +786,7 @@ the stack.</p>
 We can play with this definition as follows:</p>
 
 <pre class="c">
-% atlast -ileibniz
+% atlast -ileibniz.atl
 10 leibniz f.
 3.04184 -&gt; 100 leibniz f.
 3.13159 -&gt; 1000 leibniz f.
@@ -803,7 +802,7 @@ iterations, then run that program.  Continuing our session above:</p>
 
 <pre class="c">
 -&gt; : itest 0 do i 1+ 10000 * dup .
-:&gt; leibniz 2dup f. pierr  loop ;
+:&gt; leibniz dup f. pierr  loop ;
 -&gt; 5 itest
 10000 3.14149 0.0001 
 20000 3.14154 5e-05 
@@ -831,7 +830,7 @@ lines:</p>
 : itest
     0 do 
         i 1+ 10000 * dup . leibniz
-        2dup f. pierr
+        dup f. pierr
     loop
 ;
 
@@ -865,25 +864,25 @@ Try this, instead, if you're serious about pumping &pi;.)</p>
 <pre class="c">
 \   Tamura-Kanada fast Pi algorithm
 
-2variable a
-2variable b
-2variable c
-2variable y
+variable a
+variable b
+variable c
+variable y
 
 : tamura-kanada ( n -- fpi )
-    1.0 a 2!
-    1.0 2.0 sqrt f/ b 2!
-    0.25 c 2!
+    1.0 a !
+    1.0 2.0 sqrt f/ b !
+    0.25 c !
     1.0
-    rot 1 do
-        a 2@ 2dup y 2!
-        b 2@ f+ 2.0 f/ a 2!
-        b 2@ y 2@ f* sqrt b 2!
-        c 2@ 2over a 2@ y 2@ f-
-        2dup f* f* f- c 2! 2.0 f*
+    swap 1 do
+        a @ dup y !
+        b @ f+ 2.0 f/ a !
+        b @ y @ f* sqrt b !
+        c @ over a @ y @ f-
+        dup f* f* f- c ! 2.0 f*
     loop
-    2drop
-    a 2@ b 2@ f+ 2dup f* 4.0 c 2@ f* f/
+    drop
+    a @ b @ f+ dup f* 4.0 c @ f* f/
 ;
 </pre>
 
@@ -916,7 +915,7 @@ If you've loaded a definition of the factorial function as follows:</p>
 and execute it under trace, you'll see output as follows:</p>
 
 <pre class="c">
-% atlast -ifact
+% atlast -ifactorial.atl
 -&gt; 1 trace
 -&gt; 3 factorial .
 
@@ -970,7 +969,7 @@ with &ldquo;<tt>0 walkback</tt>&rdquo;.  Here is a sample error
 walkback report:</p>
 
 <pre class="c">
-% atlast -ileibniz
+% atlast -ileibniz.atl
 -&gt; leibniz
 Stack underflow.
 Walkback:
@@ -1032,9 +1031,8 @@ variables.</p>
 <dd>If double precision floating point numbers must be aligned on 8
 byte boundaries in memory, define ALIGNMENT. If not defined, <span
 class="a">Atlast</span> assumes that 4 byte alignment is adequate for
-these numbers.  (Conditional code in <tt>atldef.h</tt> attempts to
-define ALIGNMENT on processors which require it, but its tests may
-omit your machine.)</dd>
+these numbers.  With the 64-bit architecture of ATLAST 2.x, there
+are few circumstances where ALIGNMENT should be required.</dd>
 
 <dt>COPYRIGHT</dt>
 <dd>If you require a statement of the the public domain status of
@@ -1085,12 +1083,9 @@ is enabled.</dd>
 </dl>
 
 <p>
-When building <span class="a">Atlast</span> on MS-DOS or 16-bit OS/2,
-you must use a large data model (32 bit data addresses). <span
-class="a">Atlast</span> treats all integers as 32 bits and assumes
-that data pointers are at least that long.  Attempting to build with
-16 bit data addresses will cause compile errors that indicate
-violation of design assumptions.</p>
+<span
+class="a">Atlast</span> treats all integers as 64 bits and assumes
+that data pointers are the same length.</p>
 
 <h3>Initialising: <tt>atl_init</tt></h3>
 
@@ -1118,19 +1113,19 @@ adjust the size of the memory allocated by
 <dl class="tj">
 <dt>atl_stklen</dt>
 <dd>Evaluation
-(data) stack length.  Expressed as a number of 4 byte stack items.
+(data) stack length.  Expressed as a number of 8 byte stack items.
 Default 100. 
 </dd>
 
 <dt>atl_rstklen</dt>
 <dd>Return
-stack length.  Expressed as a number of 4 byte return stack pointer
+stack length.  Expressed as a number of 8 byte return stack pointer
 items.  Default 100. 
 </dd>
 
 <dt>atl_heaplen</dt>
 <dd>Heap
-length.  Specified as a number of 4 byte stack items.  Default 1000. 
+length.  Specified as a number of 8 byte heap items.  Default 2000. 
 </dd>
 
 <dt>atl_ltempstr</dt>
@@ -1349,7 +1344,7 @@ defined, and you must include the  header file <tt>atldef.h</tt> in
 files that call them.
 </div>
 
-<h3>Looking up words:<tt>atl_lookup</tt></h3>
+<h3>Looking up words: <tt>atl_lookup</tt></h3>
 
 <p>
 Your application can look up words in the
@@ -1425,8 +1420,8 @@ dictword *<i>var</i>
 <p>
 where <i>name</i> is a character pointer giving the name of the
 variable to be created and <i>size</i> is an integer specifying its
-size in bytes.  Note that to create a normal
-<span class="a">Atlast</span> integer variable <i>size</i> should be 4; for
+size in bytes.  To create an
+<span class="a">Atlast</span> integer variable or
 a floating point variable, <i>size</i> should be 8 bytes.  Storage for
 the variable is reserved on the <span class="a">Atlast</span> heap. 
 If insufficient heap space is available to create the variable
@@ -1456,7 +1451,7 @@ We could then print the value with an <span class="a">Atlast</span>
 program run under that application with:</p>
 
 <pre class="c">
-pi 2@ f.
+pi @ f.
 </pre>
 
 <h3>Executing words: <tt>atl_exec</tt></h3>
@@ -1554,7 +1549,7 @@ areas of memory.  Let's look at them one by one.</p>
 
 <p>
 The stack pointer variable is called <tt>stk</tt>, and always points
-to the next available <tt>long</tt> stack item.  Primitives rarely
+to the next available <tt>stackitem</tt> stack item.  Primitives rarely
 reference <tt>stk</tt> directly, since it is usually far more
 convenient to use definitions that hide the complexity of indexing the
 stack.  The following tools are provided for access to the stack.</p>
@@ -1581,7 +1576,7 @@ allocated to it when those items are added.  If it would, a <i>stack
 overflow</i> must be reported.  At the start of your primitive, simply
 use the statement &ldquo;<tt>So(</tt><i>n</i><tt>);</tt>&rdquo;, where
 <i>n</i> is the number of new stack items you'll be pushing.  If you
-are adding one new integer item to the stack, use
+are adding one new item to the stack, use
 &ldquo;<tt>So(1)</tt>;&rdquo;. It's important that you use the
 definition rather than check the stack limit directly; if you later
 build your application with stack checking off, the <tt>So()</tt>
@@ -1592,7 +1587,7 @@ primitive for maximum speed.
 <p class="hang">
 <tt>S0</tt>&ndash; <tt>S5</tt>  The definitions <tt>S0</tt>,
 <tt>S1</tt>,&hellip; <tt>S5</tt> provide direct access to the top 6
-integer stack items.  <tt>S0</tt> is the top item on the stack,
+stack items.  <tt>S0</tt> is the top item on the stack,
 <tt>S1</tt> is the next item, and so on.  These definitions may be
 used on either the left or right side of an assignment.  
 </p>
@@ -1624,7 +1619,9 @@ the stack pointer.
 floating point number.  A primitive that expects two floating point
 arguments on the stack and will leave them there, adding one new
 floating point result would begin
-&ldquo;<tt>Sl(2&nbsp;*&nbsp;Realsize); So(Realsize);</tt>&rdquo;.  
+&ldquo;<tt>Sl(2&nbsp;*&nbsp;Realsize); So(Realsize);</tt>&rdquo;.  In
+the 64-bit implementation of <span class="a">Atlast</span> <tt>Realsize</tt>
+is 1, but using it future-proofs your code.
 </p>
 
 <p class="hang">
@@ -1632,7 +1629,7 @@ floating point result would begin
 access to the topmost three floating point numbers on the stack.  The
 stack cells are automatically cast to type <tt>double</tt>.  It is
 <i>essential</i> that you access floating point values this
-way&mdash;some computers require that <tt>double</tt>s be aligned on 8
+way&mdash;some computers may require that <tt>double</tt>s be aligned on 8
 byte boundaries, and the <tt>REAL</tt><i>n</i> definitions
 automatically align the variable if the machine requires
 it.  
@@ -1646,7 +1643,8 @@ functions, store their floating point arguments into the topmost
 the stack.  Because of the possible need to compensate for machine
 alignment restrictions, the <tt>REAL</tt><i>n</i> definitions cannot
 be used on the left side of an assignment; use these  functions
-instead.  
+instead.  There is no performance penalty if, as for most 64-bit machines,
+there is no need to align storage of floating point values.
 </p>
 
 <p class="hang">
@@ -1692,9 +1690,9 @@ past its assigned maximum size.  This event is called a <i>heap
 overflow</i>, and the <tt>Ho(</tt><i>n</i><tt>)</tt> function checks
 for it and terminates execution should overflow occur.  The number
 <i>n</i> is the amount of heap you propose to allocate, <i>in terms of
-stack items</i>, each of four bytes.  If you wish to allocate a number
+stack items</i>, each of eight bytes.  If you wish to allocate a number
 expressed in bytes, you must round it up to the next larger multiple
-of four.  A portable way to do this is to use the expression:
+of eight.  A portable way to do this is to use the expression:
 <tt>((</tt><i>x</i><tt> + (sizeof(stackitem) &minus; 1)) /
 sizeof(stackitem))</tt> where <i>x</i> is the number of bytes of heap
 you require.  If you configure stack and heap checking off for maximum
@@ -1715,7 +1713,7 @@ generates no code.
 
 <p class="hang">
 <tt>Hstore</tt>  Used on the left of an assignment, stores the
-<tt>long</tt> value on the right side into the next available heap
+64-bit value on the right side into the next available heap
 cell and advances the heap allocation pointer.
 </p>
 
@@ -1897,17 +1895,6 @@ follows:</p>
 <tt>atl_primdef(primt);</tt></p>
 
 <p>
-(Subtle note for MS-DOS users: to save memory,
-<span class="a">Atlast</span> uses the actual static strings you declare in
-the primitive table as part of the dictionary entries it creates. 
-Since the <span class="a">Atlast</span> dictionary will contain
-pointers to these compiled-in strings, you must not place the data for
-the primitive table in an overlay which might be swapped out when
-<span class="a">Atlast</span> later attempts to search the
-dictionary.  If your program does not overlay its data segment, you
-need not worry about this.)</p>
-
-<p>
 You can call <tt>atl_primdef</tt> any time after you've called
 <tt>atl_init</tt>, and you can call it as many times as you like with
 different <tt>primfcn</tt> tables.  If a name in a <tt>primfcn</tt>
@@ -1946,7 +1933,7 @@ the C language definition of a primitive function to evaluate it.  The
 function is compatible with the one we previously implemented in <span
 class="a">Atlast</span>: it expects the number of terms on the top of
 the stack and returns the approximation of &pi; as a floating point
-value in the two top stack items.</p>
+value in the top stack item.</p>
 
 <pre class="c">
 prim pleibniz()
@@ -1961,7 +1948,6 @@ prim pleibniz()
     Pop;
 
     So(Realsize);
-    Push = 0;
     Push = 0;
     while (nterms-- &gt; 0) {
         sum += numer / denom;
@@ -1980,14 +1966,14 @@ referenced as <tt>S0</tt>, and saves it in the loop count,
 with <tt>Pop</tt>. Next, <tt>So(Realsize)</tt> verifies that the stack
 will not overflow when the real result is pushed (recall that
 <tt>Realsize</tt> is the number of stack items per floating point
-result&mdash;this is always two, but using the definition makes for
+result&mdash;this is always one, but using the definition makes for
 more readable code).  We then immediately count on <tt>Realsize</tt>
-being two as we use two <tt>Push</tt> operations to allocate the stack
+being one as we use a <tt>Push</tt> operation to allocate the stack
 space for the result and clear it to zero.  That done, the function
 falls into the loop that sums the requested number of terms of the
 series.  Finally, <tt>SREAL0()</tt> is used to store the result into
 the top floating point value on the stack: the one we created with the
-two <tt>Push</tt>es.</p>
+<tt>Push</tt>.</p>
 
 <p>
 This primitive is declared and registered with
@@ -2008,11 +1994,11 @@ the error after the first half million terms.</p>
 
 <pre class="c">
 % atlast
--&gt; 2variable pi
--&gt; 1.0 atan 4.0 f* pi 2!
--&gt; pi 2@ f. c 
+-&gt; variable pi
+-&gt; 1.0 atan 4.0 f* pi !
+-&gt; pi @ f. cr
 3.14159
--&gt; 500000 leibniz pi 2@ f- f. cr
+-&gt; 500000 leibniz pi @ f- f. cr
 -2e-06
 -&gt; ^D
 %
@@ -2097,11 +2083,14 @@ class="a">Atlast</span>.  Primitives: <tt>FIND</tt>,
 
 <p>
 <b>The <tt>DOUBLE</tt> package.</b>  Enables double word operations. 
-These operations can be used with any stack data, but are heavily used
-in floating point code, since floating point numbers occupy pairs of
-stack items.  Primitives: <tt>2DUP</tt>, <tt>2DROP</tt>,
+Primitives: <tt>2DUP</tt>, <tt>2DROP</tt>,
 <tt>2SWAP</tt>, <tt>2OVER</tt>, <tt>2ROT</tt>, <tt>2VARIABLE</tt>,
 <tt>2CONSTANT</tt>, <tt>2!</tt>, <tt>2@</tt>.</p>
+
+<p>
+<b>The <tt>EVALUATE</tt> package.</b>  Allows evaluating a string as an
+<span class="a">Atlast</span> expression.
+Primitives: <tt>EVALUATE</tt>.</p>
 
 <p>
 <b>The <tt>FILEIO</tt> package.</b>  Enables the C language-like file
@@ -2153,7 +2142,7 @@ processing of the prologue, <i>do not</i> explicitly call
 
 <dl class="tj" style="margin-left: 2em;">
 <dt>STACK</dt> <dd>Specifies
-the stack size in terms of <tt>long</tt>
+the stack size in terms of <tt>stackitem</tt>
 stack items.  
 </dd>
 
@@ -2162,8 +2151,8 @@ the return stack size in items.
 </dd>
 
 <dt>HEAP</dt> <dd>Specifies
-the heap size as a number of <tt>long</tt>
-stack items.</dd>
+the heap size as a number of <tt>stackitem</tt>
+heap items.</dd>
 
 <dt>TEMPSTRL</dt> <dd>Specifies
 the length of each temporary string buffer in characters.</dd>
@@ -2174,9 +2163,7 @@ the number of temporary string buffers.</dd>
 
 <p>
 <b>The <tt>REAL</tt> package.</b>  Enables floating point operations. 
-If you enable the <tt>REAL</tt> package, you should also enable the
-<tt>DOUBLE</tt> package; without it you won't be able to accomplish
-much.  Primitives: <tt>(FLIT)</tt>, <tt>F+</tt>, <tt>F-</tt>,
+Primitives: <tt>(FLIT)</tt>, <tt>F+</tt>, <tt>F-</tt>,
 <tt>F*</tt>, <tt>F/</tt>, <tt>FMIN</tt>, <tt>FMAX</tt>,
 <tt>FNEGATE</tt>, <tt>FABS</tt>, <tt>F=</tt>, <tt>F&lt;&gt;</tt>,
 <tt>F&gt;</tt>, <tt>F&lt;</tt>, <tt>F&gt;=</tt>, <tt>F&lt;=</tt>,
@@ -2227,89 +2214,6 @@ application, which packages are needed and which can be safely
 dispensed with.  Primitives: <tt>WORDSUSED</tt>,
 <tt>WORDSUNUSED</tt>.</p>
 
-<h2>Benchmarks</h2>
-
-<p>
-To give a rough idea of the kind of performance you can expect from
-<span class="a">Atlast</span> when it is pressed into service for
-compute-intensive tasks, I tested it against C and AutoLISP with two
-benchmarks, both involving the computation of square roots.</p>
-
-<p>
-The first benchmark, <tt>CSQRT</tt>, calculates the square root of 2
-with the iterative Newton-Raphson algorithm used by AutoCAD's
-<tt>hmath.c</tt> module, also used in the AutoLISP sample program
-<tt>sqr.lsp</tt>. This benchmark is representative of extremely
-compute-bound code which represents misuse of a macro
-language&mdash;any such computation should normally be moved into a
-primitive written in C.  Still, it's interesting to know what the
-worst case is.</p>
-
-<p>
-The second benchmark, <tt>SSQRT</tt>, is identical to <tt>CSQRT</tt>,
-except that the system math library's <tt>sqrt()</tt> function is
-called instead of one coded in the language under test.  Since all
-three languages are calling the same underlying system function, this
-test demonstrates relative performance in an environment still more
-compute-bound than a typical macro language application, but one where
-the language overhead is less than 100%.  All of these benchmarks were
-run on a Sun 3/260 under SunOS 4.0.3, and listings of the benchmark
-programs are given at the end of this paper.  The
-<span class="a">Atlast</span> timings were made on a version of
-<span class="a">Atlast</span> compiled with the
-&ldquo;<tt>-O4&nbsp;-f68881</tt>&rdquo; flags, and stack and heap
-checking disabled in the <span class="a">Atlast</span> configuration. 
-The C programs were also compiled with
-&ldquo;<tt>-O4&nbsp;-f68881</tt>&rdquo; flags, while the AutoLISP
-tests were run on a <tt>NONPRODUCTION</tt> version of <tt>Z.0.65</tt>
-in which AutoLISP was built with
-&ldquo;<tt>-O&nbsp;-f68881</tt>&rdquo;.  All timings in the following
-table have been normalised so that the native C language times are
-1.</p>
-
-<table class="benchmark" border="border">
-    <tr>
-	<td></td>
-	<th>
-		C
-	</th>
-	<th>
-		<span class="a">Atlast</span>
-	</th>
-	<th>
-		AutoLISP
-	</th>
-    </tr>
-    <tr>
-	<th>
-		<tt>CSQRT</tt>
-	</th>
-	<td class="n">
-		1.00
-	</td>
-	<td class="n">
-		7.41
-	</td>
-	<td class="n">
-		67.08 			
-	</td>
-    </tr>
-    <tr>
-	<th>
-		<tt>SSQRT</tt>
-	</th>
-	<td class="n">
-		1.00
-	</td>
-	<td class="n">
-		1.00
-	</td>
-	<td class="n">
-		1.52  			
-	</td>
-    </tr>
-</table>
-
 <h2>Summary and Conclusions</h2>
 
 <p>
@@ -2336,9 +2240,9 @@ anticipate&mdash;in fact, working for the vendor without pay, than it
 is to have thousands of frustrated users writing up wish list requests
 that the vendor can comply with only by hiring people and paying them
 to try to accommodate the perceived needs of the users.  Open
-architecture and programmability not only benefits the user, not only
-makes a product better in the technical and marketing sense, but
-confers a direct economic advantage upon the vendor of such a
+architecture and programmability not only benefit the user, not only
+make a product better in the technical and marketing sense, but
+confer a direct economic advantage upon the vendor of such a
 product&mdash;one mirrored in a commensurate disadvantage to the
 vendor of a closed product.</p>
 
@@ -2352,7 +2256,7 @@ buffered file I/O package when a perfectly fine one was sitting in the
 library, why re-invent a macro language or other parameterisation and
 programming facility when there's one just sitting there that's as
 fast as native C code for all but the most absurd misapplications,
-takes less than 51K with every gew-gaw and optional feature at its
+takes a tiny bit of memory with every gew-gaw and optional feature at its
 command enabled all at once, is portable to any machine that supports
 C by simply recompiling a single file, and can be integrated into a
 typical application at a basic level in less than 15 minutes?</p>
@@ -2414,7 +2318,8 @@ Initial release: February, 1990<br />
 AMIX release 1.0: September, 1992<br />
 Web version 1.0: August, 1995<br />
 Web version 1.1: July, 2002<br />
-Web version 1.2: October, 2007
+Web version 1.2: October, 2007<br />
+Web version 2.0 (64-bit): July, 2014
 </p>
 
 <h1 class="ctr"><span class="a">Atlast</span> Primitives: Alphabetical Reference</h1>
@@ -2541,7 +2446,7 @@ Web version 1.2: October, 2007
     <td class="c5">
     	    <b>Store in heap</b><br />
 	    Reserves
-	    four bytes of heap space, initialising it to <i>n</i>.
+	    eight bytes of heap space, initialising it to <i>n</i>.
     </td>
     <td class="c6">
     </td>
@@ -2744,7 +2649,7 @@ Web version 1.2: October, 2007
     </td>
     <td class="c5">
     	    <b>Equal</b><br />
-	    Returns &minus;-1 if <i>n1</i>=<i>n2</i>, 0
+	    Returns &minus;1 if <i>n1</i>=<i>n2</i>, 0
 	    otherwise.
     </td>
     <td class="c6">
@@ -2765,7 +2670,7 @@ Web version 1.2: October, 2007
     </td>
     <td class="c5">
     	    <b>Greater</b><br />
-	    Returns &minus;-1 if <i>n1</i>&gt;<i>n2</i>, 0
+	    Returns &minus;1 if <i>n1</i>&gt;<i>n2</i>, 0
 	    otherwise.
     </td>
     <td class="c6">
@@ -2786,7 +2691,7 @@ Web version 1.2: October, 2007
     </td>
     <td class="c5">
     	    <b>Greater than or equal</b><br />
-	    Returns &minus;-1 if <i>n1</i>&ge;<i>n2</i>,
+	    Returns &minus;1 if <i>n1</i>&ge;<i>n2</i>,
 	    0 otherwise.
     </td>
     <td class="c6">
@@ -3155,7 +3060,7 @@ Web version 1.2: October, 2007
     <td class="c5">
     	    <b>Store two words</b><br />
 	    Stores the two words <i>n1</i> and n2 at addresses
-	    <i>addr</i> and <i>addr</i>+4.
+	    <i>addr</i> and <i>addr</i>+8.
     </td>
     <td class="c6">
 	    DOUBLE
@@ -3323,8 +3228,8 @@ Web version 1.2: October, 2007
     </td>
     <td class="c5">
     	    <b>Double variable</b><br />
-	    Creates a two cell (8 byte) variable named <i>x</i>.  When
-	    <i>x</i> is executed, the address of the 8 byte area is
+	    Creates a two cell (16 byte) variable named <i>x</i>.  When
+	    <i>x</i> is executed, the address of the 16 byte area is
 	    placed on the stack.
     </td>
     <td class="c6">
@@ -3444,7 +3349,7 @@ Web version 1.2: October, 2007
     <td class="c5">
     	    <b>Allocate heap</b><br />
 	    Allocates <i>n</i> bytes of heap space.  The space
-	    allocated is rounded to the next higher multiple of 4.
+	    allocated is rounded to the next higher multiple of 8.
     </td>
     <td class="c6">
     </td>
@@ -3733,7 +3638,7 @@ Web version 1.2: October, 2007
     </td>
     <td class="c5">
     	    <b>Align heap</b><br />
-	    The heap allocation pointer is adjusted to the next four
+	    The heap allocation pointer is adjusted to the next eight
 	    byte boundary.  This must be done following a sequence of
 	    <tt>C,</tt> operations.
     </td>
@@ -4130,7 +4035,7 @@ Web version 1.2: October, 2007
 	    f2
     </td>
     <td class="c5">
-    	    <b>f2=e<sup>f1</sup></b><br />
+    	    <b>f2=<em>e</em><sup>f1</sup></b><br />
 	    The floating point value on the top of the stack is
 	    replaced by its natural antilogarithm.
     </td>
@@ -4692,7 +4597,7 @@ Web version 1.2: October, 2007
 	    f2
     </td>
     <td class="c5">
-    	    <b>f2 = &minus;f1</b><br />
+    	    <b>Floating negate</b><br />
 	    The negative of the floating point value on the top of the
 	    stack replaces the floating point value there.
     </td>
@@ -5152,7 +5057,7 @@ Web version 1.2: October, 2007
 	    f2
     </td>
     <td class="c5">
-    	    <b>f2=ln f1</b><br />
+    	    <b>Natural logarithm</b><br />
 	    The floating point value on the top of the stack is
 	    replaced by its natural logarithm.
     </td>
@@ -5451,7 +5356,7 @@ Web version 1.2: October, 2007
 	    n2
     </td>
     <td class="c5">
-    	    <b>n2=&minus;n1</b><br />
+    	    <b>Negate</b><br />
 	    Negates the value on the top of the stack.
     </td>
     <td class="c6">
@@ -5913,7 +5818,7 @@ Web version 1.2: October, 2007
 	    f2
     </td>
     <td class="c5">
-    	    <b>f2 = sqrt f1</b><br />
+    	    <b>Square root</b><br />
 	    The floating point value on the top of the stack is
 	    replaced by its square root.
     </td>
@@ -6049,9 +5954,7 @@ Web version 1.2: October, 2007
     	    <b>Integer edit</b><br />
 	    Edits the number <i>n</i> into string <i>str</i>, using
 	    the <tt>sprintf</tt> format given by the string
-	    <i>format</i>.  Note: the reference to the number in the
-	    format must be as a <tt>long</tt> value, for example
-	    <tt>&quot;%ld&quot;</tt>.
+	    <i>format</i>.
     </td>
     <td class="c6">
 	    STRING
@@ -6357,7 +6260,7 @@ Web version 1.2: October, 2007
     	    <b>Declare variable</b><br />
 	    A variable named <i>x</i> is declared and its value is set
 	    to zero.  When <i>x</i> is executed, its address will be
-	    placed on the stack.  Four bytes are reserved on the heap
+	    placed on the stack.  Eight bytes are reserved on the heap
 	    for the variable's value.
     </td>
     <td class="c6">
@@ -6593,46 +6496,46 @@ Web version 1.2: October, 2007
 <h3 class="progname">sqrt.atl</h3>
 
 <pre class="c">
-2variable x
-2variable y
+variable x
+variable y
 
 : csqrt
-        2dup 0.0 f&lt; if
+        dup 0.0 f< if
            cr ." "SQRT: Negative argument!"
            exit
         then
-        2dup 0.0 f&lt;&gt; if
-           2dup 2dup x 2!
+        dup 0.0 f<> if
+           dup dup x !
            1.893872 f* 0.154116 f+
            1.047988 f* 1.0 f+
-           f/ y 2!                 \ y=(0.154116+1.893872*x)/(1.0+1.047988*x)
+           f/ y !                  \ y=(0.154116+1.893872*x)/(1.0+1.047988*x)
 
-           y 2@                    \ y
+           y @                     \ y
            0.0                     \ y c
            begin
-                 2swap             \ c y
-                 2dup              \ c y y
-                 x 2@              \ c y y x
-                 2over             \ c y y x y
+                 swap              \ c y
+                 dup               \ c y y
+                 x @               \ c y y x
+                 over              \ c y y x y
                  f/                \ c y y x/y
                  f-                \ c y y-x/y
                  -0.5              \ c y (y-x/y) -0.5
                  f*                \ c y (y-x/y)*-0.5
-                 2dup              \ cl y c c
-                 2rot              \ cl c c y
+                 dup               \ cl y c c
+                 rot               \ cl c c y
                  f+                \ cl c c+y
-                 2rot              \ c c+y cl
-                 2rot              \ c+y cl c
-                 2swap             \ c+y c cl
-                 2over             \ c+y c cl c
+                 rot               \ c c+y cl
+                 rot               \ c+y cl c
+                 swap              \ c+y c cl
+                 over              \ c+y c cl c
                  f=                \ c+y c =0?
            until
-           2drop
+           drop
         then
 ;
 
-: cbenchmark 10000 0 do 2.0 csqrt 2drop loop ." "Done\n" ;
-: sbenchmark 100000 0 do 2.0 sqrt 2drop loop ." "Done\n" ;
+: cbenchmark 10000 0 do 2.0 csqrt drop loop ." "Done\n" ;
+: sbenchmark 100000 0 do 2.0 sqrt drop loop ." "Done\n" ;
 
 .( "Type \"cbenchmark\" to run the CSQRT benchmark (10000 iterations).\n"
 .( "Type \"sbenchmark\" to run the SQRT benchmark (100000 iterations).\n"

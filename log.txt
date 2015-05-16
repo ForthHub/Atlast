@@ -72,3 +72,44 @@ the main program was not declared as returning an int--fixed.
 Added a new primdeftest.c program, which tests definition of the
 TIME and HHMMSS primitives as documented in the manual, to the
 MANIFEST and source distribution.
+
+2014 July 3
+
+Changed development version number to 2.0.
+
+Completed initial port to 64-bit architecture.  The 64-bit
+implementation uses a different (and simpler) memory architecture
+which takes advantage of the fact that integers, floating point
+numbers, and pointers are all the same 64 bit length.  Given the
+major changes all over the program, I decided not to use
+conditional compilation but rather diverge the source code
+stream for the 64-bit version.  Because floating point values
+are now the same size of integers, programs which use floating
+point are not source code compatible with programs for the original
+32-bit version.  For example, if you wanted to duplicate the top
+floating point value on the stack, you previously had to use
+2DUP since it occuiped two stack items, but now you must use
+DUP, as it now uses just one.
+
+I made the corresponding changes to the regression test, which were
+major since not only did many floating point tests need to be
+updated, but also the tests for the low-level stack and heap
+allocation required modification to accommodate the 8 byte size
+of stack items.  The regression test now runs cleanly.
+
+I removed the ALIGNMENT option from the default build in the
+Makefile.  With all stack items now being 8 bytes, there should
+be no need for this on at least the x86_64 architecture most
+people will be using.  If you are building for an architecture
+which does require alignment, you can define the tag: it still
+works.
+
+2014 July 4
+
+Rebuilt the regression test expected output file, regout.txt,
+to accommodate changes due to the new memory architecture.
+
+Added FCONSTANT and FVARIABLE primitives as synonyms for CONSTANT
+and VARIABLE.  This allows floating point code to use the same
+definitions as in Gforth.
+
